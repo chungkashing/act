@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>Asthma Control Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'Noto Sans', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .language-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            overflow: visible;
+            transition: all 0.3s ease;
+        }
+
+        .language-button {
+            padding: 1rem 1.5rem;
+            background: white;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: #333;
+            transition: all 0.3s ease;
+            border-radius: 15px;
+            width: 100%;
+        }
+
+        .language-button:hover {
+            background: #f5f5f5;
+        }
+
+        .language-button.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .language-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            margin-top: 0.5rem;
+            min-width: 200px;
+        }
+
+        .language-dropdown.show {
+            display: block;
+            animation: dropIn 0.3s ease;
+        }
+
+        @keyframes dropIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .language-option {
+            padding: 1rem 1.5rem;
+            background: white;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            text-align: left;
+            color: #333;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .language-option:hover {
+            background: #f5f5f5;
+        }
+
+        .language-option.selected {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+
+        .age-selector {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .age-selector.hidden {
+            display: none;
+        }
+
+        .age-selector:hover {
+            transform: scale(1.02);
+        }
+
+        .age-selector.left {
+            background: linear-gradient(135deg, #667eea 0%, #5a67d8 100%);
+            border-right: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .age-selector.right {
+            background: linear-gradient(135deg, #764ba2 0%, #8b5bb1 100%);
+        }
+
+        .age-content {
+            text-align: center;
+            color: white;
+            padding: 2rem;
+        }
+
+        .age-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        .age-title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .age-subtitle {
+            font-size: 1.8rem;
+            opacity: 0.95;
+            margin-bottom: 0.5rem;
+        }
+
+        .questionnaire-container {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 2rem;
+            padding-top: 100px;
+            animation: slideUp 0.5s ease;
+        }
+
+        .questionnaire-container.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .questionnaire-header {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .questionnaire-title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .section-divider {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .section-icon {
+            font-size: 2.5rem;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .question-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .question-card.child-question {
+            border-left: 5px solid #667eea;
+        }
+
+        .question-card.parent-question {
+            border-left: 5px solid #764ba2;
+        }
+
+        .question-number {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .question-number.child {
+            background: linear-gradient(135deg, #667eea, #5a67d8);
+        }
+
+        .question-number.parent {
+            background: linear-gradient(135deg, #764ba2, #8b5bb1);
+        }
+
+        .question-text {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+            font-weight: 500;
+            display: inline;
+        }
+
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .option-button {
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 150px;
+            text-align: center;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .option-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .option-button.selected {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .option-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 0.5rem;
+        }
+
+        .option-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .option-value {
+            font-size: 1rem;
+            opacity: 0.7;
+            margin-top: 0.5rem;
+        }
+
+        .score-container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            margin-top: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .score-container.show {
+            display: block;
+            animation: bounceIn 0.5s ease;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .score-display {
+            font-size: 5rem;
+            font-weight: bold;
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+            border: 5px solid;
+        }
+
+        .score-display.good {
+            background: #4caf50;
+            color: white;
+            border-color: #2e7d32;
+        }
+
+        .score-display.fair {
+            background: #ffc107;
+            color: #333;
+            border-color: #f57c00;
+        }
+
+        .score-display.poor {
+            background: #f44336;
+            color: white;
+            border-color: #c62828;
+        }
+
+        .score-comment {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .restart-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 1.5rem 3rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .restart-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            transform: scale(1.1);
+        }
+
+        /* RTL support for Urdu */
+        .rtl {
+            direction: rtl;
+        }
+
+        .rtl .question-number {
+            margin-right: 0;
+            margin-left: 1rem;
+        }
+
+        .rtl .language-dropdown {
+            right: auto;
+            left: 0;
+        }
+
+        @media (max-width: 768px) {
+            .options-container {
+                flex-direction: column;
+            }
+            
+            .option-button {
+                max-width: 100%;
+            }
+
+            .questionnaire-title {
+                font-size: 1.8rem;
+            }
+
+            .question-text {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Selector -->
+    <div class="language-selector">
+        <button class="language-button" id="languageBtn">
+            <span id="currentLangFlag">🇹🇼</span>
+            <span id="currentLangText">繁體中文</span>
+            <span>▼</span>
+        </button>
+        <div class="language-dropdown" id="languageDropdown">
+            <button class="language-option" data-lang="en">🇬🇧 English</button>
+            <button class="language-option" data-lang="zh-CN">🇨🇳 简体中文</button>
+            <button class="language-option" data-lang="zh-TW">🇹🇼 繁體中文</button>
+            <button class="language-option" data-lang="ur">🇵🇰 اردو</button>
+        </div>
+    </div>
+
+    <div class="container" id="mainContainer">
+        <div class="age-selector left" id="leftSelector">
+            <div class="age-content">
+                <div class="age-icon">👶</div>
+                <div class="age-title" data-i18n="children"></div>
+                <div class="age-subtitle" data-i18n="age4-11"></div>
+                <div class="age-subtitle" data-i18n="cactTest"></div>
+            </div>
+        </div>
+        
+        <div class="age-selector right" id="rightSelector">
+            <div class="age-content">
+                <div class="age-icon">👤</div>
+                <div class="age-title" data-i18n="teensAdults"></div>
+                <div class="age-subtitle" data-i18n="age12+"></div>
+                <div class="age-subtitle" data-i18n="actTest"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="questionnaire-container" id="questionnaireContainer">
+        <button class="back-button" id="backButton">←</button>
+        <div class="questionnaire-header">
+            <h1 class="questionnaire-title" id="questionnaireTitle"></h1>
+        </div>
+        <div id="questionsContainer"></div>
+        <div class="score-container" id="scoreContainer">
+            <div class="score-display" id="scoreDisplay">0</div>
+            <div class="score-comment" id="scoreComment"></div>
+            <button class="restart-button" id="restartButton">
+                <span>🔄</span>
+                <span data-i18n="startAgain"></span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Icon constants
+        const ICONS = {
+            verySad: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiNmNDQzMzYiLz48Y2lyY2xlIGN4PSI4IiBjeT0iMTAiIHI9IjEuNSIgZmlsbD0id2hpdGUiLz48Y2lyY2xlIGN4PSIxNiIgY3k9IjEwIiByPSIxLjUiIGZpbGw9IndoaXRlIi8+PHBhdGggZD0iTTggMTZjMS4zLTEuMyAzLjctMS4zIDUtMS4zIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz48L3N2Zz4=',
+            sad: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiNmZjk4MDAiLz48Y2lyY2xlIGN4PSI4IiBjeT0iMTAiIHI9IjEuNSIgZmlsbD0id2hpdGUiLz48Y2lyY2xlIGN4PSIxNiIgY3k9IjEwIiByPSIxLjUiIGZpbGw9IndoaXRlIi8+PHBhdGggZD0iTTggMTVjMS4zLTEgMy43LTEgNSAwIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz48L3N2Zz4=',
+            neutral: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiNmZmMxMDciLz48Y2lyY2xlIGN4PSI4IiBjeT0iMTAiIHI9IjEuNSIgZmlsbD0id2hpdGUiLz48Y2lyY2xlIGN4PSIxNiIgY3k9IjEwIiByPSIxLjUiIGZpbGw9IndoaXRlIi8+PHBhdGggZD0iTTggMTUgTDE2IDE1IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiLz48L3N2Zz4=',
+            happy: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiM4YmMzNGEiLz48Y2lyY2xlIGN4PSI4IiBjeT0iMTAiIHI9IjEuNSIgZmlsbD0id2hpdGUiLz48Y2lyY2xlIGN4PSIxNiIgY3k9IjEwIiByPSIxLjUiIGZpbGw9IndoaXRlIi8+PHBhdGggZD0iTTggMTRjMS4zIDEuMyAzLjcgMS4zIDUgMCIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBmaWxsPSJub25lIi8+PC9zdmc+',
+            veryHappy: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiM0Y2FmNTAiLz48Y2lyY2xlIGN4PSI4IiBjeT0iMTAiIHI9IjEuNSIgZmlsbD0id2hpdGUiLz48Y2lyY2xlIGN4PSIxNiIgY3k9IjEwIiByPSIxLjUiIGZpbGw9IndoaXRlIi8+PHBhdGggZD0iTTcgMTNjMiAzIDYgMyA4IDAiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPjwvc3ZnPg=='
+        };
+
+        // Translations
+        const translations = {
+            'en': {
+                children: 'Children',
+                teensAdults: 'Teens & Adults',
+                'age4-11': 'Ages 4-11',
+                'age12+': 'Ages 12+',
+                cactTest: 'C-ACT Test',
+                actTest: 'ACT Test',
+                startAgain: 'Start Again',
+                score: 'Score',
+                cactTitle: 'Childhood Asthma Control Test (C-ACT)',
+                actTitle: 'Asthma Control Test (ACT)',
+                childSection: 'Questions for Child (to be answered by child)',
+                parentSection: 'Questions for Parent/Caregiver',
+                wellControlled: '✅ Well Controlled - Asthma appears to be under control',
+                partlyControlled: '⚠️ Partly Controlled - Asthma may not be as well controlled as it could be',
+                notControlled: '❌ Not Controlled - Asthma is not well controlled. Please consult your healthcare provider',
+                childWellControlled: '✅ Well Controlled - Your child\'s asthma appears to be under control',
+                childPartlyControlled: '⚠️ Partly Controlled - Your child\'s asthma may not be as well controlled as it could be',
+                childNotControlled: '❌ Not Controlled - Your child\'s asthma is not well controlled. Please consult your healthcare provider'
+            },
+            'zh-CN': {
+                children: '儿童',
+                teensAdults: '青少年和成人',
+                'age4-11': '4-11岁',
+                'age12+': '12岁及以上',
+                cactTest: 'C-ACT 测试',
+                actTest: 'ACT 测试',
+                startAgain: '重新开始',
+                score: '分数',
+                cactTitle: '儿童哮喘控制测试 (C-ACT)',
+                actTitle: '哮喘控制测试 (ACT)',
+                childSection: '儿童问题（由儿童回答）',
+                parentSection: '家长/监护人问题',
+                wellControlled: '✅ 控制良好 - 哮喘似乎得到了控制',
+                partlyControlled: '⚠️ 部分控制 - 哮喘控制可能不够理想',
+                notControlled: '❌ 未控制 - 哮喘控制不佳，请咨询医疗保健提供者',
+                childWellControlled: '✅ 控制良好 - 您孩子的哮喘似乎得到了控制',
+                childPartlyControlled: '⚠️ 部分控制 - 您孩子的哮喘控制可能不够理想',
+                childNotControlled: '❌ 未控制 - 您孩子的哮喘控制不佳，请咨询医疗保健提供者'
+            },
+            'zh-TW': {
+                children: '兒童',
+                teensAdults: '青少年和成人',
+                'age4-11': '4-11歲',
+                'age12+': '12歲及以上',
+                cactTest: 'C-ACT 測試',
+                actTest: 'ACT 測試',
+                startAgain: '重新開始',
+                score: '分數',
+                cactTitle: '兒童哮喘控制測試 (C-ACT)',
+                actTitle: '哮喘控制測試 (ACT)',
+                childSection: '兒童問題（由兒童回答）',
+                parentSection: '家長/監護人問題',
+                wellControlled: '✅ 控制良好 - 哮喘似乎得到了控制',
+                partlyControlled: '⚠️ 部分控制 - 哮喘控制可能不夠理想',
+                notControlled: '❌ 未控制 - 哮喘控制不佳，請諮詢醫療保健提供者',
+                childWellControlled: '✅ 控制良好 - 您孩子的哮喘似乎得到了控制',
+                childPartlyControlled: '⚠️ 部分控制 - 您孩子的哮喘控制可能不夠理想',
+                childNotControlled: '❌ 未控制 - 您孩子的哮喘控制不佳，請諮詢醫療保健提供者'
+            },
+            'ur': {
+                children: 'بچے',
+                teensAdults: 'نوجوان اور بالغ',
+                'age4-11': '4-11 سال',
+                'age12+': '12 سال اور اوپر',
+                cactTest: 'C-ACT ٹیسٹ',
+                actTest: 'ACT ٹیسٹ',
+                startAgain: 'دوبارہ شروع کریں',
+                score: 'اسکور',
+                cactTitle: 'بچوں کا دمہ کنٹرول ٹیسٹ (C-ACT)',
+                actTitle: 'دمہ کنٹرول ٹیسٹ (ACT)',
+                childSection: 'بچے کے سوالات (بچہ جواب دے)',
+                parentSection: 'والدین/نگراں کے سوالات',
+                wellControlled: '✅ اچھی طرح کنٹرول - دمہ کنٹرول میں نظر آتا ہے',
+                partlyControlled: '⚠️ جزوی کنٹرول - دمہ مکمل طور پر کنٹرول میں نہیں ہو سکتا',
+                notControlled: '❌ غیر کنٹرول - دمہ کنٹرول میں نہیں ہے۔ براہ کرم اپنے ڈاکٹر سے رابطہ کریں',
+                childWellControlled: '✅ اچھی طرح کنٹرول - آپ کے بچے کا دمہ کنٹرول میں نظر آتا ہے',
+                childPartlyControlled: '⚠️ جزوی کنٹرول - آپ کے بچے کا دمہ مکمل طور پر کنٹرول میں نہیں ہو سکتا',
+                childNotControlled: '❌ غیر کنٹرول - آپ کے بچے کا دمہ کنٹرول میں نہیں ہے۔ براہ کرم اپنے ڈاکٹر سے رابطہ کریں'
+            }
+        };
+
+        // Questionnaire translations
+        const questionnaireTranslations = {
+            'en': {
+                CACT: [
+                    // Child questions (1-4)
+                    {
+                        question: "How is your asthma today?",
+                        options: [
+                            { text: "Very bad", value: 0 },
+                            { text: "Bad", value: 1 },
+                            { text: "Good", value: 2 },
+                            { text: "Very good", value: 3 }
+                        ],
+                        isChild: true
+                    },
+                    {
+                        question: "How much of a problem is your asthma when you run, exercise or play sports?",
+                        options: [
+                            { text: "It's a big problem, I can't do what I want to do", value: 0 },
+                            { text: "It's a problem and I don't like it", value: 1 },
+                            { text: "It's a little problem but it's okay", value: 2 },
+                            { text: "It's not a problem", value: 3 }
+                        ],
+                        isChild: true
+                    },
+                    {
+                        question: "Do you cough because of your asthma?",
+                        options: [
+                            { text: "Yes, all of the time", value: 0 },
+                            { text: "Yes, most of the time", value: 1 },
+                            { text: "Yes, some of the time", value: 2 },
+                            { text: "No, none of the time", value: 3 }
+                        ],
+                        isChild: true
+                    },
+                    {
+                        question: "Do you wake up during the night because of your asthma?",
+                        options: [
+                            { text: "Yes, all of the time", value: 0 },
+                            { text: "Yes, most of the time", value: 1 },
+                            { text: "Yes, some of the time", value: 2 },
+                            { text: "No, none of the time", value: 3 }
+                        ],
+                        isChild: true
+                    },
+                    // Parent questions (5-7)
+                    {
+                        question: "During the last 4 weeks, how many days did your child have any daytime asthma symptoms?",
+                        options: [
+                            { text: "Every day", value: 0 },
+                            { text: "19-24 days", value: 1 },
+                            { text: "11-18 days", value: 2 },
+                            { text: "4-10 days", value: 3 },
+                            { text: "1-3 days", value: 4 },
+                            { text: "Not at all", value: 5 }
+                        ],
+                        isChild: false
+                    },
+                    {
+                        question: "During the last 4 weeks, how many days did your child wheeze during the day because of asthma?",
+                        options: [
+                            { text: "Every day", value: 0 },
+                            { text: "19-24 days", value: 1 },
+                            { text: "11-18 days", value: 2 },
+                            { text: "4-10 days", value: 3 },
+                            { text: "1-3 days", value: 4 },
+                            { text: "Not at all", value: 5 }
+                        ],
+                        isChild: false
+                    },
+                    {
+                        question: "During the last 4 weeks, how many days did your child wake up during the night because of asthma?",
+                        options: [
+                            { text: "Every day", value: 0 },
+                            { text: "19-24 days", value: 1 },
+                            { text: "11-18 days", value: 2 },
+                            { text: "4-10 days", value: 3 },
+                            { text: "1-3 days", value: 4 },
+                            { text: "Not at all", value: 5 }
+                        ],
+                        isChild: false
+                    }
+                ],
+                ACT: [
+                    {
+                        question: "In the past 4 weeks, how much of the time did your asthma keep you from getting as much done at work, school or at home?",
+                        options: [
+                            { text: "All of the time", value: 1 },
+                            { text: "Most of the time", value: 2 },
+                            { text: "Some of the time", value: 3 },
+                            { text: "A little of the time", value: 4 },
+                            { text: "None of the time", value: 5 }
+                        ]
+                    },
+                    {
+                        question: "During the past 4 weeks, how often have you had shortness of breath?",
+                        options: [
+                            { text: "More than once a day", value: 1 },
+                            { text: "Once a day", value: 2 },
+                            { text: "3 to 6 times a week", value: 3 },
+                            { text: "Once or twice a week", value: 4 },
+                            { text: "Not at all", value: 5 }
+                        ]
+                    },
+                    {
+                        question: "During the past 4 weeks, how often did your asthma symptoms wake you up at night or earlier than usual in the morning?",
+                        options: [
+                            { text: "4 or more nights a week", value: 1 },
+                            { text: "2 or 3 nights a week", value: 2 },
+                            { text: "Once a week", value: 3 },
+                            { text: "Once or twice", value: 4 },
+                            { text: "Not at all", value: 5 }
+                        ]
+                    },
+                    {
+                        question: "During the past 4 weeks, how often have you used your rescue inhaler or nebulizer medication?",
+                        options: [
+                            { text: "3 or more times per day", value: 1 },
+                            { text: "1 or 2 times per day", value: 2 },
+                            { text: "2 or 3 times per week", value: 3 },
+                            { text: "Once a week or less", value: 4 },
+                            { text: "Not at all", value: 5 }
+                        ]
+                    },
+                    {
+                        question: "How would you rate your asthma control during the past 4 weeks?",
+                        options: [
+                            { text: "Not controlled at all", value: 1 },
+                            { text: "Poorly controlled", value: 2 },
+                            { text: "Somewhat controlled", value: 3 },
+                            { text: "Well controlled", value: 4 },
+                            { text: "Completely controlled", value: 5 }
+                        ]
+                    }
+                ]
+            },
+            'zh-CN': {
+                CACT: [
+                    // Child questions (1-4)
+                    {
+                        question: "今天你的哮喘怎么样？",
+                        options: [
+                            { text: "非常糟糕", value: 0 },
+                            { text: "糟糕", value: 1 },
+                            { text: "好", value: 2 },
+                            { text: "非常好", value: 3 }
+                        ],
+                        isChild: true
+                    },
+                    {
+                        question: "当你跑步、运动或做体育活动时，哮喘对你有多大影响？",
+                        options: [
+                            { text: "影响很大，我不能做想做的事", value: 0 },
+                            { text: "有影响，我不喜欢", value: 1 },
+                            { text: "有一点影响，但还可以", value: 2 },
+                            { text: "没有影响", value: 3 }
+                        ],
+                        isChild: true
+                    },
+                    {
+                        question: "你会因为哮喘而咳嗽吗？",
+                        options: [
+                            { text: "是的，一直都会", value: 0 },
+                            { text: "是的，大部分时间", value: 1 },
+                            { text: "是的，有时候", value: 2 },
+                            { text: "不，从来不会", value: 3 }
+                        ],
+                        isChild: true
+                    },
+                    {
+                        question: "你会因为哮喘在夜间醒来吗？",
+                        options: [
+                            { text: "是的，一直都会", value: 0 },
+                            { text: "是的，大部分时间", value: 1 },
+                            { text: "是的，有时候", value: 2 },
+                            { text: "不，从来不会", value: 3 }
+                        ],
+                        isChild: true
+                    },
+                    // Parent questions (5-7)
+                    {
+                        question: "在过去4周内，您的孩子有多少天出现日间哮喘症状？",
+                        options: [
+                            { text: "每天", value: 0 },
+                            { text: "19-24天", value: 1 },
+                            { text: "11-18天", value: 2 },
+                            { text: "4-10天", value: 3 },
+                            { text: "1-3天", value: 4 },
+                            { text: "完全没有", value: 5 }
+                        ],
+                        isChild: false
+                    },
+                    {
+                        question: "在过去4周内，您的孩子因哮喘而在白天喘息的天数有多少？",
+                        options: [
+                            { text: "每天", value: 0 },
+                            { text: "19-24天", value: 1 },
+                            { text: "11-18天", value: 2 },
+                            { text: "4-10天", value: 3 },
+                            { text: "1-3天", value: 4 },
+                            { text: "完全没有", value: 5 }
+                        ],
+                        isChild: false
+                    },
+                    {
+                        question: "在过去4周内，您的孩子因哮喘而在夜间醒来的天数有多少？",
+                        options: [
+                            { text: "每天", value: 0 },
+                            { text: "19-24天", value: 1 },
+                            { text: "11-18天", value: 2 },
+                            { text: "4-10天", value: 3 },
+                            { text: "1-3天", value: 4 },
+                            { text: "完全没有", value: 5 }
+                        ],
+                        isChild: false
+                    }
+                ],
+                ACT: [
+                    {
+                        question: "在过去4周内，哮喘有多少时间妨碍您在工作、学校或家中完成工作？",
+                        options: [
+                            { text: "一直都有", value: 1 },
+                            { text: "大部分时间", value: 2 },
+                            { text: "有些时间", value: 3 },
+                            { text: "很少时间", value: 4 },
+                            { text: "完全没有", value: 5 }
+                        ]
+                    },
+                    {
+                        question: "在过去4周内，您有多频繁出现呼吸急促？",
+                        options: [
+                            { text: "每天多次", value: 1 },
+                            { text: "每天一次", value: 2 },
+                            { text: "每周3-6次", value: 3 },
+                            { text: "每周1-2次", value: 4 },
+                            { text: "完全没有", value: 5 }
+                        ]
+                    },
+                    {
+                        question: "在过去4周内，哮喘症状有多频繁在夜间或清晨把您吵醒？",
+                        options: [
+                            { text: "每周4晚或更多", value: 1 },
+                            { text: "每周2-3晚", value: 2 },
+                            { text: "每周1晚", value: 3 },
+                            { text: "1-2次", value: 4 },
+                            { text: "完全没有", value: 5 }
+                        ]
+                    },
+                    {
+                        question: "在过去4周内，您使用救援吸入器或雾化器药物的频率如何？",
+                        options: [
+                            { text: "每天3次或更多", value: 1 },
+                            { text: "每天1-2次", value: 2 },
+                            { text: "每周2-3次", value: 3 },
+                            { text: "每周1次或更少", value: 4 },
+                            { text: "完全没有", value: 5 }
+                        ]
+                    },
+                    {
+                        question: "您如何评价过去4周内的哮喘控制情况？",
+                        options: [
+                            { text: "完全未控制", value: 1 },
+                            { text: "控制不佳", value: 2 },
+                            { text: "部分控制", value: 3 },
+                            { text: "控制良好", value: 4 },
+                            { text: "完全控制", value: 5 }
+                        ]
+                    }
+                ]
+            },
+            'zh-TW': {
+                CACT: [
+                    // Child questions (1-4)
+                    {
+                        question: "今天你的哮喘怎麼樣？",
+                        options: [
+                            { text: "非常糟糕", value: 0 },
+                            { text: "糟糕", value: 1 },
+                            { text: "好", value: 2 },
+                            { text: "非常好", value: 3 }
+                        ],
+                        isChild: true
+                    },
+                    {
+                        question: "當你跑步、運動或做體育活動時，哮喘對你有多大影響？",
+                        options: [
+                            { text: "影響很大，我不能做想做的事", value: 0 },
+                            { text: "有影響，我不喜歡", value: 1 },
+                            { text: "有一點影響，但還可以", value: 2 },
+                            { text: "沒有影響", value: 3 }
+                        ],
+                        isChild: true
+                    },
+                    {
+                        question: "你會因為哮喘而咳嗽嗎？",
+                        options: [
+                            { text: "是的，一直都會", value: 0 },
+                            { text: "是的，大部分時間", value: 1 },
+                            { text: "是的，有時候", value: 2 },
+                            { text: "不，從來不會", value: 3 }
+                        ],
+                        isChild: true
+                    },
+                    {
+                        question: "你會因為哮喘在夜間醒來嗎？",
+                        options: [
+                            { text: "是的，一直都會", value: 0 },
+                            { text: "是的，大部分時間", value: 1 },
+                            { text: "是的，有時候", value: 2 },
+                            { text: "不，從來不會", value: 3 }
+                        ],
+                        isChild: true
+                    },
+                    // Parent questions (5-7)
+                    {
+                        question: "在過去4週內，您的孩子有多少天出現日間哮喘症狀？",
+                        options: [
+                            { text: "每天", value: 0 },
+                            { text: "19-24天", value: 1 },
+                            { text: "11-18天", value: 2 },
+                            { text: "4-10天", value: 3 },
+                            { text: "1-3天", value: 4 },
+                            { text: "完全沒有", value: 5 }
+                        ],
+                        isChild: false
+                    },
+                    {
+                        question: "在過去4週內，您的孩子因哮喘而在白天喘息的天數有多少？",
+                        options: [
+                            { text: "每天", value: 0 },
+                            { text: "19-24天", value: 1 },
+                            { text: "11-18天", value: 2 },
+                            { text: "4-10天", value: 3 },
+                            { text: "1-3天", value: 4 },
+                            { text: "完全沒有", value: 5 }
+                        ],
+                        isChild: false
+                    },
+                    {
+                        question: "在過去4週內，您的孩子因哮喘而在夜間醒來的天數有多少？",
+                        options: [
+                            { text: "每天", value: 0 },
+                            { text: "19-24天", value: 1 },
+                            { text: "11-18天", value: 2 },
+                            { text: "4-10天", value: 3 },
+                            { text: "1-3天", value: 4 },
+                            { text: "完全沒有", value: 5 }
+                        ],
+                        isChild: false
+                    }
+                ],
+                ACT: [
+                    {
+                        question: "在過去4週內，哮喘有多少時間妨礙您在工作、學校或家中完成工作？",
+                        options: [
+                            { text: "一直都有", value: 1 },
+                            { text: "大部分時間", value: 2 },
+                            { text: "有些時間", value: 3 },
+                            { text: "很少時間", value: 4 },
+                            { text: "完全沒有", value: 5 }
+                        ]
+                    },
+                    {
+                        question: "在過去4週內，您有多頻繁出現呼吸急促？",
+                        options: [
+                            { text: "每天多次", value: 1 },
+                            { text: "每天一次", value: 2 },
+                            { text: "每週3-6次", value: 3 },
+                            { text: "每週1-2次", value: 4 },
+                            { text: "完全沒有", value: 5 }
+                        ]
+                    },
+                    {
+                        question: "在過去4週內，哮喘症狀有多頻繁在夜間或清晨把您吵醒？",
+                        options: [
+                            { text: "每週4晚或更多", value: 1 },
+                            { text: "每週2-3晚", value: 2 },
+                            { text: "每週1晚", value: 3 },
+                            { text: "1-2次", value: 4 },
+                            { text: "完全沒有", value: 5 }
+                        ]
+                    },
+                    {
+                        question: "在過去4週內，您使用救援吸入器或霧化器藥物的頻率如何？",
+                        options: [
+                            { text: "每天3次或更多", value: 1 },
+                            { text: "每天1-2次", value: 2 },
+                            { text: "每週2-3次", value: 3 },
+                            { text: "每週1次或更少", value: 4 },
+                            { text: "完全沒有", value: 5 }
+                        ]
+                    },
+                    {
+                        question: "您如何評價過去4週內的哮喘控制情況？",
+                        options: [
+                            { text: "完全未控制", value: 1 },
+                            { text: "控制不佳", value: 2 },
+                            { text: "部分控制", value: 3 },
+                            { text: "控制良好", value: 4 },
+                            { text: "完全控制", value: 5 }
+                        ]
+                    }
+                ]
+            },
+            'ur': {
+                CACT: [
+                    // Child questions (1-4)
+                    {
+                        question: "آج آپ کا دمہ کیسا ہے؟",
+                        options: [
+                            { text: "بہت برا", value: 0 },
+                            { text: "برا", value: 1 },
+                            { text: "اچھا", value: 2 },
+                            { text: "بہت اچھا", value: 3 }
+                        ],
+                        isChild: true
+                    },
+                    {
+                        question: "جب آپ دوڑتے، ورزش کرتے یا کھیل کھیلتے ہیں تو دمہ کتنی پریشانی کا باعث ہے؟",
+                        options: [
+                            { text: "بڑی پریشانی ہے، میں وہ نہیں کر سکتا جو کرنا چاہتا ہوں", value: 0 },
+                            { text: "پریشانی ہے اور مجھے یہ پسند نہیں", value: 1 },
+                            { text: "تھوڑی پریشانی ہے لیکن ٹھیک ہے", value: 2 },
+                            { text: "کوئی پریشانی نہیں", value: 3 }
+                        ],
+                        isChild: true
+                    },
+                    {
+                        question: "کیا آپ کو دمہ کی وجہ سے کھانسی آتی ہے؟",
+                        options: [
+                            { text: "ہاں، ہر وقت", value: 0 },
+                            { text: "ہاں، زیادہ تر وقت", value: 1 },
+                            { text: "ہاں، کبھی کبھار", value: 2 },
+                            { text: "نہیں، بالکل نہیں", value: 3 }
+                        ],
+                        isChild: true
+                    },
+                    {
+                        question: "کیا آپ دمہ کی وجہ سے رات کو جاگ جاتے ہیں؟",
+                        options: [
+                            { text: "ہاں، ہر وقت", value: 0 },
+                            { text: "ہاں، زیادہ تر وقت", value: 1 },
+                            { text: "ہاں، کبھی کبھار", value: 2 },
+                            { text: "نہیں، بالکل نہیں", value: 3 }
+                        ],
+                        isChild: true
+                    },
+                    // Parent questions (5-7)
+                    {
+                        question: "پچھلے 4 ہفتوں میں، آپ کے بچے کو کتنے دن دن میں دمہ کی علامات تھیں؟",
+                        options: [
+                            { text: "ہر روز", value: 0 },
+                            { text: "19-24 دن", value: 1 },
+                            { text: "11-18 دن", value: 2 },
+                            { text: "4-10 دن", value: 3 },
+                            { text: "1-3 دن", value: 4 },
+                            { text: "بالکل نہیں", value: 5 }
+                        ],
+                        isChild: false
+                    },
+                    {
+                        question: "پچھلے 4 ہفتوں میں، آپ کے بچے کو دمہ کی وجہ سے دن میں کتنے دن سانس میں خرخراہٹ تھی؟",
+                        options: [
+                            { text: "ہر روز", value: 0 },
+                            { text: "19-24 دن", value: 1 },
+                            { text: "11-18 دن", value: 2 },
+                            { text: "4-10 دن", value: 3 },
+                            { text: "1-3 دن", value: 4 },
+                            { text: "بالکل نہیں", value: 5 }
+                        ],
+                        isChild: false
+                    },
+                    {
+                        question: "پچھلے 4 ہفتوں میں، آپ کا بچہ دمہ کی وجہ سے رات میں کتنے دن جاگا؟",
+                        options: [
+                            { text: "ہر روز", value: 0 },
+                            { text: "19-24 دن", value: 1 },
+                            { text: "11-18 دن", value: 2 },
+                            { text: "4-10 دن", value: 3 },
+                            { text: "1-3 دن", value: 4 },
+                            { text: "بالکل نہیں", value: 5 }
+                        ],
+                        isChild: false
+                    }
+                ],
+                ACT: [
+                    {
+                        question: "پچھلے 4 ہفتوں میں، دمہ نے آپ کو کام، اسکول یا گھر میں کتنا کام کرنے سے روکا؟",
+                        options: [
+                            { text: "ہر وقت", value: 1 },
+                            { text: "زیادہ تر وقت", value: 2 },
+                            { text: "کچھ وقت", value: 3 },
+                            { text: "تھوڑا سا وقت", value: 4 },
+                            { text: "بالکل نہیں", value: 5 }
+                        ]
+                    },
+                    {
+                        question: "پچھلے 4 ہفتوں میں، آپ کو کتنی بار سانس کی تکلیف ہوئی؟",
+                        options: [
+                            { text: "دن میں ایک سے زیادہ بار", value: 1 },
+                            { text: "دن میں ایک بار", value: 2 },
+                            { text: "ہفتے میں 3 سے 6 بار", value: 3 },
+                            { text: "ہفتے میں ایک یا دو بار", value: 4 },
+                            { text: "بالکل نہیں", value: 5 }
+                        ]
+                    },
+                    {
+                        question: "پچھلے 4 ہفتوں میں، دمہ کی علامات نے آپ کو رات میں یا صبح جلدی کتنی بار جگایا؟",
+                        options: [
+                            { text: "ہفتے میں 4 یا زیادہ راتیں", value: 1 },
+                            { text: "ہفتے میں 2 یا 3 راتیں", value: 2 },
+                            { text: "ہفتے میں ایک رات", value: 3 },
+                            { text: "ایک یا دو بار", value: 4 },
+                            { text: "بالکل نہیں", value: 5 }
+                        ]
+                    },
+                    {
+                        question: "پچھلے 4 ہفتوں میں، آپ نے اپنا ریسکیو انہیلر یا نیبولائزر دوا کتنی بار استعمال کی؟",
+                        options: [
+                            { text: "دن میں 3 یا زیادہ بار", value: 1 },
+                            { text: "دن میں 1 یا 2 بار", value: 2 },
+                            { text: "ہفتے میں 2 یا 3 بار", value: 3 },
+                            { text: "ہفتے میں ایک بار یا کم", value: 4 },
+                            { text: "بالکل نہیں", value: 5 }
+                        ]
+                    },
+                    {
+                        question: "پچھلے 4 ہفتوں میں آپ اپنے دمہ کنٹرول کو کیسے درجہ بندی کریں گے؟",
+                        options: [
+                            { text: "بالکل کنٹرول میں نہیں", value: 1 },
+                            { text: "خراب کنٹرول", value: 2 },
+                            { text: "کچھ حد تک کنٹرول", value: 3 },
+                            { text: "اچھی طرح کنٹرول", value: 4 },
+                            { text: "مکمل طور پر کنٹرول", value: 5 }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        // Set default language to Traditional Chinese
+        let currentLanguage = 'zh-TW';
+        let currentTest = null;
+        let answers = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            updateLanguage();
+        });
+
+        function setupEventListeners() {
+            // Main selectors
+            document.getElementById('leftSelector').addEventListener('click', () => startTest('CACT'));
+            document.getElementById('rightSelector').addEventListener('click', () => startTest('ACT'));
+            document.getElementById('backButton').addEventListener('click', goBack);
+            document.getElementById('restartButton').addEventListener('click', restart);
+            
+            // Language button
+            document.getElementById('languageBtn').addEventListener('click', function(e) {
+                e.stopPropagation();
+                const dropdown = document.getElementById('languageDropdown');
+                dropdown.classList.toggle('show');
+            });
+            
+            // Language options
+            document.querySelectorAll('.language-option').forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const lang = this.getAttribute('data-lang');
+                    changeLanguage(lang);
+                });
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                const dropdown = document.getElementById('languageDropdown');
+                const button = document.getElementById('languageBtn');
+                if (!dropdown.contains(event.target) && !button.contains(event.target)) {
+                    dropdown.classList.remove('show');
+                }
+            });
+        }
+
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            const dropdown = document.getElementById('languageDropdown');
+            dropdown.classList.remove('show');
+            
+            // Update language button
+            const langMap = {
+                'en': { flag: '🇬🇧', text: 'English' },
+                'zh-CN': { flag: '🇨🇳', text: '简体中文' },
+                'zh-TW': { flag: '🇹🇼', text: '繁體中文' },
+                'ur': { flag: '🇵🇰', text: 'اردو' }
+            };
+            
+            document.getElementById('currentLangFlag').textContent = langMap[lang].flag;
+            document.getElementById('currentLangText').textContent = langMap[lang].text;
+            
+            // Update RTL for Urdu
+            if (lang === 'ur') {
+                document.body.classList.add('rtl');
+            } else {
+                document.body.classList.remove('rtl');
+            }
+            
+            updateLanguage();
+            
+            // If questionnaire is active, re-render it
+            if (currentTest) {
+                const questions = questionnaireTranslations[currentLanguage][currentTest];
+                renderQuestions(questions);
+            }
+        }
+
+        function updateLanguage() {
+            const t = translations[currentLanguage];
+            
+            // Update all elements with data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (t[key]) {
+                    element.textContent = t[key];
+                }
+            });
+            
+            // Update questionnaire title if active
+            if (currentTest) {
+                const titleKey = currentTest === 'CACT' ? 'cactTitle' : 'actTitle';
+                document.getElementById('questionnaireTitle').textContent = t[titleKey];
+            }
+        }
+
+        function startTest(testType) {
+            currentTest = testType;
+            answers = {};
+            
+            document.querySelector('.container').style.display = 'none';
+            document.getElementById('questionnaireContainer').classList.add('active');
+            
+            const t = translations[currentLanguage];
+            const titleKey = testType === 'CACT' ? 'cactTitle' : 'actTitle';
+            document.getElementById('questionnaireTitle').textContent = t[titleKey];
+            
+            const questions = questionnaireTranslations[currentLanguage][testType];
+            renderQuestions(questions);
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderQuestions(questions) {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+            
+            let lastIsChild = null;
+            let questionNumber = 0;
+            
+            questions.forEach((q, index) => {
+                // Add section divider for C-ACT
+                if (currentTest === 'CACT' && q.isChild !== lastIsChild) {
+                    const divider = document.createElement('div');
+                    divider.className = 'section-divider';
+                    divider.innerHTML = `
+                        <span class="section-icon">${q.isChild ? '👦' : '👨‍👩‍👧'}</span>
+                        <span>${translations[currentLanguage][q.isChild ? 'childSection' : 'parentSection']}</span>
+                    `;
+                    container.appendChild(divider);
+                    lastIsChild = q.isChild;
+                    questionNumber = 0;
+                }
+                
+                questionNumber++;
+                
+                const questionCard = document.createElement('div');
+                questionCard.className = `question-card ${currentTest === 'CACT' ? (q.isChild ? 'child-question' : 'parent-question') : ''}`;
+                
+                const questionHeader = document.createElement('div');
+                const numberClass = currentTest === 'CACT' ? (q.isChild ? 'child' : 'parent') : '';
+                const displayNumber = currentTest === 'CACT' ? (q.isChild ? `C${questionNumber}` : `P${questionNumber}`) : index + 1;
+                
+                questionHeader.innerHTML = `
+                    <span class="question-number ${numberClass}">${displayNumber}</span>
+                    <span class="question-text">${q.question}</span>
+                `;
+                
+                const optionsContainer = document.createElement('div');
+                optionsContainer.className = 'options-container';
+                
+                q.options.forEach(option => {
+                    const optionButton = document.createElement('div');
+                    optionButton.className = 'option-button';
+                    
+                    // Select icon based on value
+                    let icon;
+                    if (currentTest === 'CACT' && q.isChild) {
+                        // Child CACT questions
+                        icon = option.value === 0 ? ICONS.verySad :
+                               option.value === 1 ? ICONS.sad :
+                               option.value === 2 ? ICONS.happy : ICONS.veryHappy;
+                    } else if (currentTest === 'CACT') {
+                        // Parent CACT questions
+                        icon = option.value <= 1 ? ICONS.verySad :
+                               option.value === 2 ? ICONS.sad :
+                               option.value === 3 ? ICONS.neutral :
+                               option.value === 4 ? ICONS.happy : ICONS.veryHappy;
+                    } else {
+                        // ACT questions
+                        icon = option.value === 1 ? ICONS.verySad :
+                               option.value === 2 ? ICONS.sad :
+                               option.value === 3 ? ICONS.neutral :
+                               option.value === 4 ? ICONS.happy : ICONS.veryHappy;
+                    }
+                    
+                    optionButton.innerHTML = `
+                        <img src="${icon}" class="option-icon" alt="${option.text}">
+                        <div class="option-text">${option.text}</div>
+                        <div class="option-value">${translations[currentLanguage].score}: ${option.value}</div>
+                    `;
+                    
+                    // Check if this option was previously selected
+                    if (answers[index] === option.value) {
+                        optionButton.classList.add('selected');
+                    }
+                    
+                    optionButton.addEventListener('click', () => {
+                        selectOption(index, option.value, optionButton);
+                    });
+                    
+                    optionsContainer.appendChild(optionButton);
+                });
+                
+                questionCard.appendChild(questionHeader);
+                questionCard.appendChild(optionsContainer);
+                container.appendChild(questionCard);
+            });
+        }
+
+        function selectOption(questionIndex, value, buttonElement) {
+            // Remove previous selection for this question
+            const questionCard = buttonElement.closest('.question-card');
+            questionCard.querySelectorAll('.option-button').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Add selection to clicked button
+            buttonElement.classList.add('selected');
+            
+            // Store answer
+            answers[questionIndex] = value;
+            
+            // Check if all questions answered
+            const totalQuestions = questionnaireTranslations[currentLanguage][currentTest].length;
+            if (Object.keys(answers).length === totalQuestions) {
+                calculateScore();
+            }
+        }
+
+        function calculateScore() {
+            const totalScore = Object.values(answers).reduce((sum, val) => sum + val, 0);
+            
+            const scoreContainer = document.getElementById('scoreContainer');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const scoreComment = document.getElementById('scoreComment');
+            
+            scoreDisplay.textContent = totalScore;
+            
+            // Determine score category and comment
+            let scoreClass, commentKey;
+            const t = translations[currentLanguage];
+            
+            if (currentTest === 'CACT') {
+                if (totalScore >= 20) {
+                    scoreClass = 'good';
+                    commentKey = 'childWellControlled';
+                } else if (totalScore >= 13) {
+                    scoreClass = 'fair';
+                    commentKey = 'childPartlyControlled';
+                } else {
+                    scoreClass = 'poor';
+                    commentKey = 'childNotControlled';
+                }
+            } else {
+                if (totalScore >= 20) {
+                    scoreClass = 'good';
+                    commentKey = 'wellControlled';
+                } else if (totalScore >= 15) {
+                    scoreClass = 'fair';
+                    commentKey = 'partlyControlled';
+                } else {
+                    scoreClass = 'poor';
+                    commentKey = 'notControlled';
+                }
+            }
+            
+            scoreDisplay.className = `score-display ${scoreClass}`;
+            scoreComment.textContent = t[commentKey];
+            
+            scoreContainer.classList.add('show');
+            scoreContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function goBack() {
+            document.getElementById('questionnaireContainer').classList.remove('active');
+            document.querySelector('.container').style.display = 'flex';
+            document.getElementById('scoreContainer').classList.remove('show');
+            currentTest = null;
+        }
+
+        function restart() {
+            goBack();
+        }
+
+        // Make app fullscreen on iPad
+        if (navigator.standalone) {
+            document.documentElement.requestFullscreen?.() || 
+            document.documentElement.webkitRequestFullscreen?.();
+        }
+    </script>
+</body>
+</html>
